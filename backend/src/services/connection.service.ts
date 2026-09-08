@@ -9,14 +9,26 @@ function calendarAppId(){
     return CALENDAR_CONNECTION_ID
 }
 
-export async function getCalendarConnection(userId: string){
+// export async function getCalendarConnection(userId: string){
+//     const connection = await Connection.findOne({
+//         userId,
+//         provider:"calendar",
+
+//     });
+
+//     return connection
+// }
+
+export async function getCalendarConnection(userId: string) {
     const connection = await Connection.findOne({
         userId,
-        provider:"calendar",
-
+        provider: "calendar",
     });
 
-    return connection
+    return {
+        label: CALENDAR_CONNECTION_LABEL,
+        status: connection?.status ?? "disconnected",
+    };
 }
 
 
@@ -35,11 +47,22 @@ export async function creatCalendarConnectUrl(input:{
         throw new Error("could not start connection")
     }
 
-    await Connection.create({
-        userId: input.userId,
-        provider: "calendar",
-        status: "pending",
-    });
+await Connection.findOneAndUpdate(
+        {
+            userId: input.userId,
+            provider: "calendar",
+        },
+        {
+            $set: {
+                status: "pending",
+            },
+        },
+        {
+            upsert: true,
+            new: true,
+        }
+    );
+
 
     return {
         url: response.data.url,

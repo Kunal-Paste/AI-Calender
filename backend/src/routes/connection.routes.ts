@@ -6,14 +6,30 @@ export const connectionRouter = Router();
 
 connectionRouter.use(requireSession)
 
-connectionRouter.get("/", async(req,res)=>{
-    try{
-        const connection = await getCalendarConnection(req.auth!.userId)
-        res.json(connection)
-    }catch{
-       res.status(500).json({error:"could not load connection"})
+// connectionRouter.get("/", async(req,res)=>{
+//     try{
+//         const connection = await getCalendarConnection(req.auth!.userId)
+//         res.json(connection)
+//     }catch{
+//        res.status(500).json({error:"could not load connection"})
+//     }
+// })
+
+connectionRouter.get("/", async (req, res) => {
+    try {
+        const connection = await getCalendarConnection(req.auth!.userId);
+
+        res.json({
+            connection,
+        });
+    } catch (error) {
+        console.error("Could not load connection:", error);
+
+        res.status(500).json({
+            error: "could not load connection",
+        });
     }
-})
+});
 
 connectionRouter.post("/connect", async(req,res)=>{
    try{
@@ -22,7 +38,7 @@ connectionRouter.post("/connect", async(req,res)=>{
     req.body.refreshToken : "";
 
     if(!refreshToken){
-        res.status(400).json({error:"refresh token required"})
+        return res.status(400).json({error:"refresh token required"})
     }
 
     const redirectUrl = 
@@ -36,9 +52,10 @@ connectionRouter.post("/connect", async(req,res)=>{
         redirectUrl
     })
 
-    res.json(result)
-   }catch{
-       res.status(500).json({error:"failed to connect calendar"})
+    return res.json(result)
+   }catch (error){
+    console.error("Failed to connect calendar",error);
+       return res.status(500).json({error:"failed to connect calendar"})
    }
 })
 
