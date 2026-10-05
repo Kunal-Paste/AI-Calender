@@ -11,9 +11,13 @@
   "description": "",
   "dependencies": {
     "@descope/node-sdk": "^2.16.0",
+    "@mastra/core": "^1.74.0",
+    "@mastra/libsql": "^1.25.0",
+    "@mastra/memory": "^1.35.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "googleapis": "^183.0.0",
     "mongoose": "^9.9.4",
     "pg": "^8.23.0",
     "zod": "^4.5.4"
