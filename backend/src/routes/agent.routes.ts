@@ -1,6 +1,7 @@
 import {Router} from 'express'
 import {z} from 'zod'
 import { requireSession } from '../middleware/requireSession.js';
+import { getThreadMessages, listUserThreads, streamAgentReply } from '../services/agent.service.js';
 
 export const agentRoutes = Router();
 
@@ -15,7 +16,7 @@ agentRoutes.use(requireSession)
 
 agentRoutes.get('/threads', async(req,res)=>{
     try{
-      const threads = await listUserThreads()
+      const threads = await listUserThreads(req.auth!.authUserId)
       res.json({threads})
     }catch(error){
          const message = error instanceof Error ? error.message : "failed to list threads"
@@ -33,7 +34,7 @@ agentRoutes.get('/threads/:threadId', async(req,res)=>{
     }
 
     try{
-       const messages = await getThreadMessages()
+       const messages = await getThreadMessages(req.auth!.authUserId, parsed.data)
        res.json({threadId : parsed.data, messages})
     }catch(error){
        const message = error instanceof Error ? error.message : "failed to list threads"
@@ -59,7 +60,13 @@ agentRoutes.post("/chat",async(req,res)=>{
     }
 
     try{
-        await streamAgentReply()
+        await streamAgentReply({
+            userId:req.auth!.userId,
+            authUserId:req.auth!.authUserId,
+            threadId:parsed.data.threadId,
+            message:parsed.data.message,
+            onEvent:write
+        })
     }catch(error){
          const message = error instanceof Error ? error.message : "failed to list threads"
          write({type: "error", message})
